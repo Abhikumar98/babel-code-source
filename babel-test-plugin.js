@@ -39,7 +39,14 @@ module.exports = function (babel) {
       JSXElement(path, state) {
         const { children } = path.node;
 
-        if (path.node.openingElement.name.name === "a") return;
+        // if (path.node.openingElement.attributes) return;
+
+        const shouldSkip = path.node.openingElement.attributes.find(attribute => ['data-source', 'data-meme'].includes(attribute.name.name))
+
+        console.log(path.node.openingElement.attributes)
+        console.log({ shouldSkip });
+
+        if(!!shouldSkip) return;
 
         children.forEach((child) => {
           if (child.type === "JSXText") {
@@ -56,22 +63,26 @@ module.exports = function (babel) {
 
 
             const anchorElement = t.jSXElement(
-              t.jSXOpeningElement(t.jSXIdentifier("a"), [
-                t.jSXAttribute(
-                  t.jSXIdentifier("href"),
-                  t.stringLiteral(isValidMeme.value)
-                ),
-                t.jSXAttribute(
-                  t.jSXIdentifier("target"),
-                  t.stringLiteral("_blank")
-                ),
+              t.jSXOpeningElement(t.jSXIdentifier("div"), [
+                // t.jSXAttribute(
+                //   t.jSXIdentifier("href"),
+                //   t.stringLiteral(isValidMeme.value)
+                // ),
+                // t.jSXAttribute(
+                //   t.jSXIdentifier("target"),
+                //   t.stringLiteral("_blank")
+                // ),
                 t.jsxAttribute(
                   t.jsxIdentifier("data-source"),
                   t.stringLiteral(
                     `${state.file.opts.filename}:${child.loc?.start?.line}:${child.loc?.start?.column}`
-                  ))
+                  )),
+                t.jsxAttribute(
+                  t.jsxIdentifier("data-meme"),
+                  t.stringLiteral(isValidMeme.value)
+                )
               ]),
-              t.jSXClosingElement(t.jSXIdentifier("a")),
+              t.jSXClosingElement(t.jSXIdentifier("div")),
               [t.jSXText(isValidMeme.literal)],
               false
             );
